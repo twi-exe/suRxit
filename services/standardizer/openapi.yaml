@@ -1,0 +1,48 @@
+openapi: 3.0.3
+info:
+  title: Standardizer Service
+  version: 1.0.0
+  description: API to map extracted entity names to canonical IDs using fuzzy string matching on manual CSVs.
+paths:
+  /standardize:
+    post:
+      summary: Map entity names to canonical IDs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                entities:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                      type:
+                        type: string
+      responses:
+        '200':
+          description: List of standardized entities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        text:
+                          type: string
+                        type:
+                          type: string
+                        canonical_id:
+                          type: string
+                        score:
+                          type: number
+                        manual_review_flag:
+                          type: boolean

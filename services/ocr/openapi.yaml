@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  title: OCR Service
+  version: 1.0.0
+  description: OCR API for extracting text and bounding boxes from prescription images or PDFs.
+paths:
+  /ocr/upload:
+    post:
+      summary: Upload a prescription image or PDF
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: OCR extraction result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ingest_id:
+                    type: string
+                  raw_text:
+                    type: string
+                  blocks:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        text:
+                          type: string
+                        left:
+                          type: integer
+                        top:
+                          type: integer
+                        width:
+                          type: integer
+                        height:
+                          type: integer
+                        conf:
+                          type: string
+                  timestamp:
+                    type: string

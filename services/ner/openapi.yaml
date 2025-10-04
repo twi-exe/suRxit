@@ -1,0 +1,45 @@
+openapi: 3.0.3
+info:
+  title: NER Service
+  version: 1.0.0
+  description: NER API for extracting clinical entities from text using BioBERT.
+paths:
+  /ner/parse:
+    post:
+      summary: Extract clinical entities from text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                ingest_id:
+                  type: string
+      responses:
+        '200':
+          description: List of extracted entities
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  entities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        span:
+                          type: array
+                          items:
+                            type: integer
+                        type:
+                          type: string
+                        text:
+                          type: string
+                        confidence:
+                          type: number
+                        ingest_id:
+                          type: string

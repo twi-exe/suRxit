@@ -1,0 +1,5 @@
+# Risk weights for DDI/ADR features
+# Example:
+ddi_weight: 0.5
+adr_weight: 0.5
+# Add more as needed

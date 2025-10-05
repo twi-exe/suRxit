@@ -1,5 +1,6 @@
 # Risk weights for DDI/ADR features
 # Example:
-ddi_weight: 0.5
-adr_weight: 0.5
+# Make DDI risk dominant for test
+ddi_weight: 1.0
+adr_weight: 0.0
 # Add more as needed

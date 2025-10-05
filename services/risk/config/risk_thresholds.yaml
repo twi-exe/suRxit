@@ -1,6 +1,6 @@
 # Risk thresholds for classification
 # Example:
 low: 0.0
-moderate: 0.3
-high: 0.7
-critical: 0.9
+moderate: 0.2
+high: 0.5
+critical: 0.8

@@ -10,3 +10,4 @@ uvicorn
 prometheus-client
 pytest
 pytest-asyncio
+python-multipart

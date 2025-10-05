@@ -1,3 +1,14 @@
+"""
+models.py — SQLAlchemy models and DB session
+
+Tables:
+  - Patient
+  - Prescription
+  - Alert
+  - AuditLog
+  - DFICache
+  - HomeRemedyCache
+"""
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from sqlalchemy import Column, Integer, String, DateTime, JSON, ForeignKey
@@ -6,6 +17,7 @@ import datetime
 Base = declarative_base()
 
 class Patient(Base):
+    """Patient record."""
     __tablename__ = 'patients'
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -15,6 +27,7 @@ class Patient(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class Prescription(Base):
+    """Prescription record."""
     __tablename__ = 'prescriptions'
     id = Column(Integer, primary_key=True)
     patient_id = Column(Integer, ForeignKey('patients.id'))
@@ -22,6 +35,7 @@ class Prescription(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class Alert(Base):
+    """Risk alert record."""
     __tablename__ = 'alerts'
     id = Column(Integer, primary_key=True)
     patient_id = Column(Integer, ForeignKey('patients.id'))
@@ -30,6 +44,7 @@ class Alert(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class AuditLog(Base):
+    """Audit log record."""
     __tablename__ = 'audit_log'
     id = Column(Integer, primary_key=True)
     event = Column(String)
@@ -37,6 +52,7 @@ class AuditLog(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class DFICache(Base):
+    """DFI cache record."""
     __tablename__ = 'dfi_cache'
     id = Column(Integer, primary_key=True)
     drug_id = Column(String)
@@ -45,12 +61,14 @@ class DFICache(Base):
     cached_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 class HomeRemedyCache(Base):
+    """Home remedy cache record."""
     __tablename__ = 'home_remedy_cache'
     id = Column(Integer, primary_key=True)
     drug_id = Column(String)
     remedy = Column(String)
     cached_at = Column(DateTime, default=datetime.datetime.utcnow)
 
+# Async DB session
 DATABASE_URL = "postgresql+asyncpg://user:password@db/surxit"
 engine = create_async_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)

@@ -1,6 +1,16 @@
+"""
+gateway.py — FastAPI entrypoint
+
+Responsibilities:
+	- Create FastAPI app
+	- Load routers: /analyze, /risk, /alerts, /patient
+	- Setup authentication
+	- Mount /health and Prometheus metrics
+"""
+
 from fastapi import FastAPI
-from routers import analyze, risk, alerts, patient
-from auth import setup_auth
+from .routers import analyze, risk, alerts, patient
+from .auth import setup_auth
 from prometheus_client import make_asgi_app
 
 app = FastAPI(title="suRxit Gateway API")

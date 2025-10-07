@@ -5,35 +5,17 @@ import React from 'react';
  * Shows a home remedy, description, and cautionary note for a drug.
  * Props: { drug, remedy, caution } OR { name, indication, preparation, precautions, evidence_level }
  */
-export default function HomeRemedyCard({ drug, remedy, caution, name, indication, preparation, precautions, evidence_level, submittedDrugs = [] }) {
-  // normalize and log
-  // submittedDrugs is an array of drug strings from the user's input
-  console.log('HomeRemedyCard props:', { drug, remedy, caution, name, indication, preparation, precautions, evidence_level, submittedDrugs });
-
+export default function HomeRemedyCard({ drug, remedy, caution, name, indication, preparation, precautions, evidence_level }) {
+  console.log('HomeRemedyCard props:', { drug, remedy, caution, name, indication, preparation, precautions, evidence_level });
+  
   // Handle both data structures - mock data format and API format
   const displayDrug = drug || name || 'Unknown Drug';
   const displayRemedy = remedy || preparation || 'No remedy information available';
   const displayCaution = caution || precautions || null;
   const displayEvidence = evidence_level || null;
-
-  // Determine relevance: check if any submitted drug matches words in name/precautions/indication
-  const lowerName = (displayDrug || '').toLowerCase();
-  const searchableText = [
-    lowerName,
-    (displayCaution || '').toLowerCase(),
-    (indication || '').toLowerCase(),
-  ].join(' ');
-
-  const matched = (submittedDrugs || []).filter(s => {
-    if (!s) return false;
-    const token = s.toLowerCase();
-    return searchableText.includes(token) || lowerName.includes(token);
-  });
-
-  const isRelevant = matched.length > 0;
   
   return (
-  <div className={`bg-white border rounded-xl shadow-lg p-6 mb-4 hover:shadow-xl transition-shadow duration-300 ${isRelevant ? 'border-green-500 ring-1 ring-green-100' : 'border-green-200'}`}>
+    <div className="bg-white border border-green-200 rounded-xl shadow-lg p-6 mb-4 hover:shadow-xl transition-shadow duration-300">
       <div className="flex items-start gap-4">
         {/* Icon */}
         <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -46,18 +28,13 @@ export default function HomeRemedyCard({ drug, remedy, caution, name, indication
         <div className="flex-1">
           {/* Drug name */}
           <div className="flex items-center gap-2 mb-3">
-            <h3 className={`font-bold text-lg ${isRelevant ? 'text-green-900' : 'text-green-800'}`}>{displayDrug}</h3>
+            <h3 className="font-bold text-lg text-green-800">{displayDrug}</h3>
             <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
               Home Remedy
             </span>
             {displayEvidence && (
               <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
                 {displayEvidence}
-              </span>
-            )}
-            {isRelevant && (
-              <span className="ml-2 px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
-                Relevant to: {matched.join(', ')}
               </span>
             )}
           </div>

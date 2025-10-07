@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useAPI } from '../providers/APIProvider';
 import { useAuth } from '../hooks/useAuth';
@@ -11,6 +10,7 @@ import EvidenceModal from '../components/EvidenceModal';
 import HistoryTimeline from '../components/HistoryTimeline';
 import AlertsBanner from '../components/AlertsBanner';
 import ChatbotWidget from '../components/ChatbotWidget';
+import PDFUpload from '../components/PDFUpload';
 
 
 const Dashboard = () => {
@@ -27,13 +27,6 @@ const Dashboard = () => {
     // Check if mock data is enabled
     const useMockData = import.meta.env.VITE_ENABLE_MOCK_DATA === 'true';
     
-    // extract simple drug list from the entered text (comma/semicolon/newline separated)
-    const submittedText = formData.get('text') || '';
-    const extractedDrugs = (submittedText || '')
-      .split(/[,;\n]/)
-      .map(s => s.trim())
-      .filter(Boolean);
-
     if (useMockData) {
       // Mock data for development/demo
       setTimeout(() => {
@@ -68,8 +61,7 @@ const Dashboard = () => {
             { date: '2024-03-10', summary: 'Adjusted dosages', risk_score: 75, level: 'HIGH' }
           ]
         };
-        // attach extracted submitted drugs so UI can show drug-specific remedies
-        setResult({ ...mockResult, _submittedDrugs: extractedDrugs });
+        setResult(mockResult);
         setLoading(false);
       }, 1500);
     } else {
@@ -89,8 +81,7 @@ const Dashboard = () => {
         });
         
         console.log('✅ API Success! Response:', data);
-        // attach submitted drugs so components can render drug-specific content
-        setResult({ ...data, _submittedDrugs: extractedDrugs });
+        setResult(data);
       } catch (err) {
         console.error('❌ API Error Full Details:', err);
         console.error('Error name:', err.name);
@@ -121,56 +112,86 @@ const Dashboard = () => {
     }
   }
 
+  // Add handler for OCR result
+  function handleOcrResult(json) {
+    // Directly set result to trigger analysis display
+    setResult(json);
+    setError(null);
+  }
+
   return (
     <>
       <AlertsBanner />
       <div className="max-w-2xl mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">Analyze Prescription</h1>
-      <PrescriptionForm onSubmit={handleAnalyze} loading={loading} />
-      {error && <div className="text-red-600 mt-4">{error}</div>}
-      {result && (
-        <>
-          <RiskGauge risk_score={result.risk_score} level={result.level} />
-          <DDITable ddi_summary={result.ddi_summary} adr_flags={result.adr_flags} />
-          <DFIAccordion dfi_cautions={result.dfi_cautions} />
-          {console.log('Home remedies check:', {
-            isArray: Array.isArray(result.home_remedies),
-            length: result.home_remedies?.length,
-            data: result.home_remedies
-          })}
-          {Array.isArray(result.home_remedies) && result.home_remedies.length > 0 && (
-            <div className="my-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                          d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
+        <h1 className="text-2xl font-bold mb-6">Analyze Prescription</h1>
+        <PDFUpload onResult={handleOcrResult} />
+        {/* Quick test button to simulate OCR result (useful when backend OCR not available) */}
+        <div className="my-4">
+          <button
+            type="button"
+            className="px-3 py-2 bg-blue-600 text-white rounded shadow-sm hover:bg-blue-700"
+            onClick={() => {
+              // sample mock from ocrService.js
+              const mock = {
+                risk_score: 42,
+                level: 'MOD',
+                ddi_summary: [
+                  { drug1: 'Aspirin', drug2: 'Warfarin', interaction: 'Increased bleeding risk', severity: 'HIGH' }
+                ],
+                adr_flags: ['Gastrointestinal bleeding'],
+                dfi_cautions: [],
+                home_remedies: [
+                  { name: 'Ginger Tea', indication: 'Nausea', preparation: 'Steep 1-2g in hot water', precautions: 'Avoid if on blood thinners', evidence_level: 'Moderate' }
+                ],
+                evidence_paths: [],
+                contributors: ['Simulated OCR'],
+                history: []
+              };
+              handleOcrResult(mock);
+            }}
+          >
+            Simulate OCR Result
+          </button>
+        </div>
+        <PrescriptionForm onSubmit={handleAnalyze} loading={loading} />
+        {error && <div className="text-red-600 mt-4">{error}</div>}
+        {result && (
+          <>
+            <RiskGauge risk_score={result.risk_score} level={result.level} />
+            <DDITable ddi_summary={result.ddi_summary} adr_flags={result.adr_flags} />
+            <DFIAccordion dfi_cautions={result.dfi_cautions} />
+            {console.log('Home remedies check:', {
+              isArray: Array.isArray(result.home_remedies),
+              length: result.home_remedies?.length,
+              data: result.home_remedies
+            })}
+            {Array.isArray(result.home_remedies) && result.home_remedies.length > 0 && (
+              <div className="my-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-2xl font-bold text-green-800">Home Remedies & Self-Care</h2>
                 </div>
-                <h2 className="text-2xl font-bold text-green-800">Home Remedies & Self-Care</h2>
+                <p className="text-green-700 text-sm mb-6 italic">
+                  Natural approaches and lifestyle recommendations to complement your medication regimen
+                </p>
+                {result.home_remedies.map((rem, i) => {
+                  console.log('Home remedy item:', rem);
+                  return <HomeRemedyCard key={i} {...rem} />;
+                })}
               </div>
-              <p className="text-green-700 text-sm mb-6 italic">
-                Natural approaches and lifestyle recommendations to complement your medication regimen
-              </p>
-              {result.home_remedies.map((rem, i) => {
-                console.log('Home remedy item:', rem);
-                return (
-                  <HomeRemedyCard
-                    key={i}
-                    {...rem}
-                    submittedDrugs={result._submittedDrugs || []}
-                  />
-                );
-              })}
-            </div>
-          )}
-          <EvidenceModal evidence_paths={result.evidence_paths} contributors={result.contributors} />
-          {Array.isArray(result.history) && result.history.length > 0 && (
-            <HistoryTimeline history={result.history} />
-          )}
-          <pre className="mt-6 bg-gray-100 p-4 rounded text-xs overflow-x-auto">{JSON.stringify(result, null, 2)}</pre>
-        </>
-      )}
+            )}
+            <EvidenceModal evidence_paths={result.evidence_paths} contributors={result.contributors} />
+            {Array.isArray(result.history) && result.history.length > 0 && (
+              <HistoryTimeline history={result.history} />
+            )}
+            <pre className="mt-6 bg-gray-100 p-4 rounded text-xs overflow-x-auto">{JSON.stringify(result, null, 2)}</pre>
+          </>
+        )}
       </div>
       <ChatbotWidget />
     </>

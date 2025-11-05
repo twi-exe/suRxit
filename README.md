@@ -1,5 +1,5 @@
-# <p align="center">
-	<img src="surxit.png" alt="suRxit logo" width="160" />
+<p align="center">
+		<img src="frontend/public/surxit.png" alt="suRxit logo" width="160" />
 </p>
 
 # suRxit
